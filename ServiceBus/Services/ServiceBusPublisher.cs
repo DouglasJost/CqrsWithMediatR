@@ -1,0 +1,55 @@
+﻿using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using CqrsWithMediatR.ServiceBus.Configuration;
+using CqrsWithMediatR.ServiceBus.Events;
+using CqrsWithMediatR.ServiceBus.Models;
+using CqrsWithMediatR.Services;
+using Microsoft.Extensions.Options;
+using System;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+
+namespace CqrsWithMediatR.ServiceBus.Services
+{
+    //Implement ServiceBusPublisher to Send Messages
+    public class ServiceBusPublisher
+    {
+        private readonly string _queueName;
+        private readonly string _namespace;
+
+        public ServiceBusPublisher()
+        {
+            _queueName = KeyVaultService.GetKeyValue(KeyVaultService.ServiceBusQueueName);
+            _namespace = KeyVaultService.GetKeyValue(KeyVaultService.ServiceBusNamespace);
+        }
+
+        public async Task SendMessageAsync<T>(T eventMessage) where T : class
+        {
+            await using ServiceBusClient client = new ServiceBusClient(_namespace, new DefaultAzureCredential());
+            ServiceBusSender sender = client.CreateSender(_queueName);
+
+            // Convert eventMessage to JSON string
+            string jsonPayload = JsonSerializer.Serialize(eventMessage);
+
+            // Deserialize JSON string back to JsonElement
+            JsonElement payloadElement = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
+
+            var wrappedMessage = new MessageWrapper()
+            {
+                EventType = typeof(T).Name,
+                Payload = payloadElement
+            };
+
+            string messageBody = JsonSerializer.Serialize(wrappedMessage);
+            ServiceBusMessage message = new ServiceBusMessage(Encoding.UTF8.GetBytes(messageBody))
+            {
+                ContentType = "application/json"
+            };
+
+            await sender.SendMessageAsync(message);
+            Console.WriteLine($"Sent ProductCreatedEvent: {messageBody}");
+        }
+    }
+}
