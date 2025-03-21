@@ -16,13 +16,15 @@ namespace CqrsWithMediatR.ServiceBus.Services
     //Implement ServiceBusPublisher to Send Messages
     public class ServiceBusPublisher
     {
+        private readonly IKeyVaultService _keyVaultService;
         private readonly string _queueName;
         private readonly string _namespace;
 
-        public ServiceBusPublisher()
+        public ServiceBusPublisher(IKeyVaultService keyVaultService)
         {
-            _queueName = KeyVaultService.GetKeyValue(KeyVaultService.ServiceBusQueueName);
-            _namespace = KeyVaultService.GetKeyValue(KeyVaultService.ServiceBusNamespace);
+            _keyVaultService = keyVaultService;
+            _queueName = _keyVaultService.GetKeyValue(KeyVaultService.ServiceBusQueueName);
+            _namespace = _keyVaultService.GetKeyValue(KeyVaultService.ServiceBusNamespace);
         }
 
         public async Task SendMessageAsync<T>(T eventMessage) where T : class

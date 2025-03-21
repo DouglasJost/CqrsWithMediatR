@@ -21,16 +21,19 @@ namespace CqrsWithMediatR.ServiceBus.Services
     public class ServiceBusConsumer
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
+        private readonly IKeyVaultService _keyVaultService;
         private readonly ServiceBusClient _serviceBusClient;
         private readonly string _queueName;
 
         public ServiceBusConsumer(
             IDbContextFactory<ApplicationDbContext> dbContextFactory,
+            IKeyVaultService keyVaultService,
             ServiceBusClient serviceBusClient)
         {
             _dbContextFactory = dbContextFactory;
+            _keyVaultService = keyVaultService;
             _serviceBusClient = serviceBusClient;
-            _queueName = KeyVaultService.GetKeyValue(KeyVaultService.ServiceBusQueueName);
+            _queueName = _keyVaultService.GetKeyValue(KeyVaultService.ServiceBusQueueName);
         }
 
         public async Task StartListening()

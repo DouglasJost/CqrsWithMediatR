@@ -59,14 +59,20 @@ namespace CqrsWithMediatR
             // Register ServiceBusClient as Singleton (to prevent connection issues)
             builder.Services.AddSingleton(sp =>
             {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-                var fullyQualifiedNamespace = KeyVaultService.GetKeyValue(KeyVaultService.ServiceBusNamespace);
+                // var configuration = sp.GetRequiredService<IConfiguration>();
+                var fullyQualifiedNamespace = Environment.GetEnvironmentVariable(KeyVaultService.ServiceBusNamespace) 
+                    ?? throw new InvalidOperationException($"The environment variable '{KeyVaultService.ServiceBusNamespace}' is not set in the Development environment.");
+
                 return new ServiceBusClient(fullyQualifiedNamespace, new DefaultAzureCredential());
             });
+
+            // Register KeyValueService
+            builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
 
             // Register ServiceBusConsumer
             builder.Services.AddSingleton<ServiceBusConsumer>();
 
+            // Register Logging
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
             builder.Services.AddControllers();
