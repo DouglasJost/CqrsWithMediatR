@@ -1,14 +1,10 @@
-﻿using Azure.Core;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using CqrsWithMediatR.Data;
 using CqrsWithMediatR.Models;
-using CqrsWithMediatR.ServiceBus.Configuration;
 using CqrsWithMediatR.ServiceBus.Events;
 using CqrsWithMediatR.ServiceBus.Models;
 using CqrsWithMediatR.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;

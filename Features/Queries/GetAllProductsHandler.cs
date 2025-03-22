@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using CqrsWithMediatR.Data;
 using CqrsWithMediatR.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System;
 
 namespace CqrsWithMediatR.Features.Queries

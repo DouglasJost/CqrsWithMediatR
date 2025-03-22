@@ -1,15 +1,11 @@
 ﻿using Azure.Identity;
 using Azure.Messaging.ServiceBus;
-using CqrsWithMediatR.ServiceBus.Configuration;
-using CqrsWithMediatR.ServiceBus.Events;
 using CqrsWithMediatR.ServiceBus.Models;
 using CqrsWithMediatR.Services;
-using Microsoft.Extensions.Options;
 using System;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace CqrsWithMediatR.ServiceBus.Services
 {

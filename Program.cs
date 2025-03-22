@@ -2,13 +2,12 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using CqrsWithMediatR.Data;
-using CqrsWithMediatR.ServiceBus.Configuration;
+using CqrsWithMediatR.DependencyInjection;
 using CqrsWithMediatR.ServiceBus.Services;
 using CqrsWithMediatR.Services;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -29,12 +28,8 @@ namespace CqrsWithMediatR
 
             var builder = WebApplication.CreateBuilder(args);
 
-            // Bind Azure Service Bus settings
-            //builder.Services.Configure<AzureServiceBusSettings>(options => 
-            //{
-            //    options.QueueName = KeyVaultService.GetKeyValue(KeyVaultService.QueueName);
-            //    options.Namespace = KeyVaultService.GetKeyValue(KeyVaultService.Namespace);
-            //});
+            // Add services to the DI container.  
+            builder.Services.AddServicesWithDefaultConventions();
 
             // Add DB context as a Factory.
             //   When a db context is needed, the respective class will need to inject a 
@@ -45,10 +40,6 @@ namespace CqrsWithMediatR
             builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
                 options.UseInMemoryDatabase("ProductDB")
                         .LogTo(Console.WriteLine, LogLevel.Information));
-
-            //builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            //    options.UseInMemoryDatabase("ProductDB")
-            //           .LogTo(Console.WriteLine, LogLevel.Information));
 
             // Add MediatR : Scan all handlers in the same assembly as Program.cs
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
@@ -66,11 +57,11 @@ namespace CqrsWithMediatR
                 return new ServiceBusClient(fullyQualifiedNamespace, new DefaultAzureCredential());
             });
 
-            // Register KeyValueService
-            builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
-
             // Register ServiceBusConsumer
             builder.Services.AddSingleton<ServiceBusConsumer>();
+
+            // Register KeyValueService
+            // builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
 
             // Register Logging
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
